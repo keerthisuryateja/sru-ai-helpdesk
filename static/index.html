@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SR University | Voice-First AI Helpdesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Header with Borderless Logo -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="brand-section">
+        <div class="brand-logo-wrapper">
+          <img src="/static/sru_logo.png" alt="SR University Logo" class="brand-logo">
+        </div>
+        <div class="brand-titles">
+          <h1>SR University</h1>
+          <div class="brand-subtitle">AI Voice Helpdesk & Campus Assistant</div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- Active LLM / Groq Status Pill -->
+        <button class="btn btn-outline btn-sm" id="configBtn" title="AI Provider Configuration">
+          <span class="badge badge-ai" id="activeProviderBadge">Checking AI...</span>
+        </button>
+        <a href="/admin" class="btn btn-outline btn-sm" id="adminNavBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Admin Portal
+        </a>
+        <button class="btn btn-outline btn-icon" id="themeToggleBtn" title="Toggle Theme">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Voice-First Viewport -->
+  <main class="main-container">
+    <!-- Centerpiece Voice Orb Hero -->
+    <div class="voice-first-hero">
+      <div class="orb-container" id="orbContainer" onclick="toggleVoiceInteraction()" title="Click to talk with SRU AI">
+        <div class="orb-ring"></div>
+        <div class="orb-ring-outer"></div>
+        <button class="voice-orb-btn" id="voiceOrbBtn" aria-label="SRU AI Voice Orb">
+          <img src="/static/sru_ai_voice_assistant_orb.png" alt="Voice Assistant Orb" class="voice-orb-img">
+        </button>
+      </div>
+
+      <!-- Live Voice Status Pill -->
+      <div class="voice-status-pill" id="voiceStatusPill">
+        <div class="indicator-dot" id="indicatorDot"></div>
+        <span id="voiceStatusText">Tap Orb to Speak</span>
+        <div class="sound-waveform" id="soundWaveform">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dialogue Context & Response Viewport -->
+    <div class="dialogue-viewport">
+      <div class="dialogue-header">
+        <div style="display: flex; align-items: center; gap: 0.45rem;">
+          <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10b981;"></span>
+          <span>Active Context Session: <strong id="sessionIdDisplay">Session-1</strong></span>
+        </div>
+        <button class="btn btn-outline btn-sm" id="newChatBtn" title="Reset dialogue context">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          New Dialogue
+        </button>
+      </div>
+
+      <div class="dialogue-messages" id="chatHistory">
+        <!-- Initial clean guidance prompt -->
+        <div class="empty-state" id="emptyState" style="margin: auto; text-align: center; padding: 2rem 1rem;">
+          <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 440px; margin: 0 auto;">
+            Speak or type to query faculty cabins & emails, administrative office rooms, fee rules, permissions, scholarships, placements, and clubs.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Chips & Text Input Bar -->
+    <div class="bottom-controls-bar">
+      <div class="suggestion-chips-row">
+        <button class="quick-chip" onclick="askQuickPrompt('What are the hostel fees and rules?')">Hostel fees & rules</button>
+        <button class="quick-chip" onclick="askQuickPrompt('Who is in charge of buses?')">Who is in charge of buses?</button>
+        <button class="quick-chip" onclick="askQuickPrompt('What is the attendance rule?')">Attendance rule</button>
+        <button class="quick-chip" onclick="askQuickPrompt('How can I contact Dr. Ramesh or find his cabin?')">Dr. Ramesh cabin & email</button>
+        <button class="quick-chip" onclick="askQuickPrompt('What are the highest placement packages?')">Placements & packages</button>
+        <button class="quick-chip" onclick="askQuickPrompt('How to get a gate pass?')">Gate pass & permissions</button>
+      </div>
+
+      <form class="input-bar-container" id="chatForm" onsubmit="handleTextSubmit(event)">
+        <input
+          type="text"
+          id="textInput"
+          class="text-input"
+          placeholder="Ask anything or click the glowing Orb to speak..."
+          autocomplete="off"
+        />
+        <button type="submit" class="btn btn-primary btn-sm" id="sendBtn" title="Send Query">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Groq & AI Configuration Modal -->
+  <div class="modal-backdrop" id="configModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>AI Engine Configuration</h3>
+        <button class="btn btn-outline btn-icon" onclick="closeConfigModal()" style="border: none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <form id="configForm" onsubmit="saveGroqKey(event)">
+        <div class="modal-body">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+            Configure your <strong>Groq API Key</strong> to power high-speed inference with <strong>Llama 3.3 (70B)</strong>. Alternatively, you can define <code>GROQ_API_KEY=...</code> directly in your <code>.env</code> file.
+          </div>
+          <div class="form-group">
+            <label class="form-label">Groq API Key</label>
+            <input type="password" id="groqKeyInput" class="form-input" placeholder="gsk_..." autocomplete="off">
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Current Active Engine: <strong id="currentEngineText">Checking...</strong>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeConfigModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save & Activate</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Audio Player element for voice playback -->
+  <audio id="ttsAudioPlayer" style="display: none;"></audio>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

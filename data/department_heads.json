@@ -1,0 +1,47 @@
+{
+  "School of Engineering & Technology": {
+    "Dean of Engineering": "Prof. Md. Mujahid Irfan",
+    "HOD, Electronics & Communication Engineering (ECE)": "Prof. K. Raj Kumar",
+    "HOD, Mechanical Engineering": "Dr. Santhosh Kumar Kamarapu",
+    "HOD, Civil Engineering": "Dr. P. Swamy Naga Ratna Giri",
+    "HOD, Electrical & Electronics Engineering (EEE)": "Dr. Buddhadeva Sahoo",
+    "sources": [
+      "https://sru.edu.in/faculty/deptFaculties/civil",
+      "https://sru.edu.in/faculty/deptFaculties/eee",
+      "https://sru.edu.in/statutory_committees/examinations_board_committee"
+    ]
+  },
+  "School of Computer Science & Artificial Intelligence": {
+    "Dean of CS & AI": "Prof. M. Sheshikala",
+    "HOD, Computer Science & Engineering (CSE)": "Dr. Ch. Sandeep",
+    "sources": [
+      "https://sru.edu.in/statutory_committees/examinations_board_committee"
+    ]
+  },
+  "School of Sciences, Humanities & Business": {
+    "Dean, School of Sciences and Humanities": "Prof. Sujoy Saha",
+    "HOD, English": "Dr. Ajeesh A K",
+    "Associate HOD, Basic Sciences": "Dr. Subhankar Panda",
+    "Dean, School of Business": "Prof. G. Gurunadham",
+    "HOD, School of Business": "Dr. M. Rajya Laxmi",
+    "sources": [
+      "https://sru.edu.in/faculty/deptFaculties/science",
+      "https://sru.edu.in/statutory_committees/examinations_board_committee",
+      "https://sru.edu.in/faculty/deptFaculties/Business"
+    ]
+  },
+  "School of Agriculture": {
+    "Dean of Agriculture": "Prof. G. Bhupal Raj",
+    "HOD, Department of Agronomy": "Dr. M. Mohana Keerthi",
+    "sources": [
+      "https://sru.edu.in/faculty/FacultyProfile/138-m-mohana-keerthi",
+      "https://sru.edu.in/statutory_committees/examinations_board_committee"
+    ]
+  },
+  "Core Academic & Research Deans": {
+    "Dean of Academics": "Prof. Srinivas Aluvala",
+    "Dean of PhD Programs": "Prof. Anima Ghosh",
+    "Dean of PG Programs": "Prof. Ajayan John",
+    "Dean of Research, Grants & Consultancy": "Prof. P. Sammaiah"
+  }
+}

@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: sru-helpdesk-ai
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: USER_PASSWORD
+        value: sru_user_2026
+      - key: USER_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: sru_admin_2026
+      - key: ADMIN_SECRET_KEY
+        generateValue: true
+      - key: VOICE_PASSWORD
+        value: sru_user_2026
+      - key: VOICE_SECRET_KEY
+        generateValue: true
+      - key: GROQ_API_KEY
+        sync: false
