@@ -6,6 +6,19 @@
 .env.production
 .env.development
 
+# Database & Data records (NEVER STORE ON GITHUB)
+*.db
+*.sqlite
+*.sqlite3
+helpdesk.db
+data/
+*.csv
+
+# Large ML Model files (Never push to GitHub)
+models/
+*.onnx
+*.bin
+
 # Python Artifacts & Virtual Environments
 __pycache__/
 *.py[cod]
@@ -24,7 +37,7 @@ eggs/
 lib/
 lib64/
 parts/
-s# Build artifacts
+# Build artifacts
 dist/
 !frontend/dist/
 var/
@@ -55,11 +68,6 @@ Thumbs.db
 *.swo
 .vscode/
 .idea/
-
-# Large ML Model files (Never push to GitHub)
-models/
-*.onnx
-*.bin
 
 # Scratch & Temporary Logs
 *.log
