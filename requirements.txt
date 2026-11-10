@@ -3,6 +3,7 @@ uvicorn[standard]>=0.34.0
 pydantic>=2.10.0
 sqlalchemy>=2.0.30
 psycopg2-binary>=2.9.9
+psycopg[binary]>=3.1.0
 python-multipart>=0.0.20
 edge-tts>=7.0.0
 python-dotenv>=1.0.1

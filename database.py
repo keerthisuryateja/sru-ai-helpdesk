@@ -6,7 +6,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./helpdesk.db")
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "+psycopg2" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
@@ -23,10 +25,10 @@ Base = declarative_base()
 class Faculty(Base):
     __tablename__ = "faculty"
 
-    emp_id = Column(String(50), primary_key=True, index=True)
-    name = Column(String(150), nullable=False, index=True)
-    email = Column(String(120), nullable=True, default=None)
-    cabin_id = Column(String(50), nullable=True, default=None)
+    emp_id = Column(String(100), primary_key=True, index=True)
+    name = Column(String(200), nullable=False, index=True)
+    email = Column(String(150), nullable=True, default=None)
+    cabin_id = Column(String(255), nullable=True, default=None)
 
     def to_dict(self):
         return {
@@ -41,10 +43,10 @@ class AdministrativePersonnel(Base):
     __tablename__ = "administrative_personnel"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    role = Column(String(150), nullable=False, index=True)
-    name = Column(String(150), nullable=False)
-    email = Column(String(120), nullable=True, default=None)
-    cabin_room_number = Column(String(50), nullable=False)
+    role = Column(String(255), nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    email = Column(String(150), nullable=True, default=None)
+    cabin_room_number = Column(String(255), nullable=False)
 
     def to_dict(self):
         return {
