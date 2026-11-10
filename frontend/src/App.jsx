@@ -223,9 +223,11 @@ export default function App() {
     setStatusText('Tap Orb to Speak');
   };
 
-  const [continuousMode, setContinuousMode] = useState(() => localStorage.getItem('sru_continuous_mode') !== 'false');
+  const [continuousMode, setContinuousMode] = useState(() => localStorage.getItem('sru_continuous_mode') === 'true');
   const continuousModeRef = useRef(continuousMode);
   const startVoiceRecordingRef = useRef(null);
+  const isTogglingVoiceRef = useRef(false);
+  const userStoppedRef = useRef(false);
 
   // In-app Delete Confirmation Modal State
   const [deleteModal, setDeleteModal] = useState({
@@ -271,13 +273,13 @@ export default function App() {
       setStatusText('Speaking...');
     };
     player.onended = () => {
-      // Auto-continue listening if in continuous mode or voice conversation mode
-      if (continuousModeRef.current || voiceConversationRef.current) {
+      // Auto-continue listening only if user explicitly turned on continuous mode
+      if (continuousModeRef.current) {
         setOrbState('idle');
         setStatusText('Listening again...');
         setTimeout(() => {
-          if (startVoiceRecordingRef.current && (continuousModeRef.current || voiceConversationRef.current)) {
-            startVoiceRecordingRef.current();
+          if (continuousModeRef.current && audioPlayerRef.current.paused) {
+            startVoiceRecordingRef.current?.();
           }
         }, 350);
       } else {
@@ -391,11 +393,11 @@ export default function App() {
 
       utterance.onend = () => {
         setOrbState('idle');
-        if (continuousModeRef.current || voiceConversationRef.current) {
+        if (continuousModeRef.current) {
           setStatusText('Listening again...');
           setTimeout(() => {
-            if (startVoiceRecordingRef.current && (continuousModeRef.current || voiceConversationRef.current)) {
-              startVoiceRecordingRef.current();
+            if (continuousModeRef.current && (audioPlayerRef.current?.paused ?? true)) {
+              startVoiceRecordingRef.current?.();
             }
           }, 350);
         } else {
@@ -536,6 +538,10 @@ export default function App() {
   // =========================================================================
 
   const toggleVoiceRecording = () => {
+    if (isTogglingVoiceRef.current) return;
+    isTogglingVoiceRef.current = true;
+    setTimeout(() => { isTogglingVoiceRef.current = false; }, 350);
+
     if (orbState === 'recording') {
       stopVoiceRecording();
     } else if (orbState === 'speaking') {
@@ -547,20 +553,26 @@ export default function App() {
       setOrbState('idle');
       setStatusText('Tap Orb to Speak');
     } else {
+      userStoppedRef.current = false;
       startVoiceRecording();
     }
   };
 
   const startVoiceRecording = async () => {
     startVoiceRecordingRef.current = startVoiceRecording;
+    userStoppedRef.current = false;
 
     // 1. Native Web Speech API (Chrome, Edge, Opera, Android browsers)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
+        if (recognitionRef.current) {
+          try { recognitionRef.current.abort(); } catch (e) {}
+        }
+
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
-        recognition.continuous = false;
+        recognition.continuous = true;
         recognition.interimResults = true;
 
         let finalTranscript = '';
@@ -586,9 +598,10 @@ export default function App() {
             
             // Clear previous silence timer
             if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-            // Auto-stop after 1.1s of silence once words are heard
+            // Auto-stop after 1.4s of silence once words are spoken
             silenceTimerRef.current = setTimeout(() => {
-              if (recognitionRef.current && (finalTranscript || interim).trim()) {
+              if (recognitionRef.current && (finalTranscript || interim).trim() && !userStoppedRef.current) {
+                userStoppedRef.current = true;
                 sound.playMicStop();
                 setStatusText('Got it! Responding...');
                 setOrbState('thinking');
@@ -596,25 +609,23 @@ export default function App() {
                   recognitionRef.current.stop();
                 } catch (e) {}
               }
-            }, 1100);
+            }, 1400);
           }
         };
 
         recognition.onerror = (e) => {
           console.warn('SpeechRecognition error:', e.error);
           if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          if (e.error === 'no-speech') {
+            // Keep listening peacefully without flipping states or looping
+            return;
+          }
           if (e.error === 'not-allowed') {
             alert('Microphone access was denied. Please allow microphone permissions in your browser.');
             setOrbState('idle');
             setStatusText('Tap Orb to Speak');
             voiceConversationRef.current = false;
             return;
-          }
-          if (e.error === 'no-speech') {
-            if (continuousModeRef.current) {
-              setStatusText('Listening... (speak anytime)');
-              return;
-            }
           }
           setOrbState('idle');
           setStatusText('Tap Orb to Speak');
@@ -628,14 +639,8 @@ export default function App() {
             setStatusText('Checking answer...');
             voiceConversationRef.current = true;
             handleSendQuery(queryToSubmit, true);
-          } else if (continuousModeRef.current) {
-            setStatusText('Listening... Speak now');
-            setTimeout(() => {
-              if (continuousModeRef.current && audioPlayerRef.current.paused) {
-                startVoiceRecordingRef.current?.();
-              }
-            }, 300);
           } else {
+            // Clean exit to idle without looping
             setOrbState('idle');
             setStatusText('Tap Orb to Speak');
           }
@@ -679,6 +684,7 @@ export default function App() {
   };
 
   const stopVoiceRecording = () => {
+    userStoppedRef.current = true;
     sound.playMicStop();
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     if (recognitionRef.current) {
