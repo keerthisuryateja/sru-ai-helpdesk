@@ -19,6 +19,9 @@ models/
 *.onnx
 *.bin
 
+# Local project documentation / notes
+totalinfo.md
+
 # Python Artifacts & Virtual Environments
 __pycache__/
 *.py[cod]
