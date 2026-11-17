@@ -142,6 +142,10 @@ Campus Facilities & Policies:
   * Reading Hall: Open daily from 8:00 a.m. to 10:00 p.m.
 - Sports & Fitness Facilities: Indoor Sports Complex (Badminton, Table Tennis, Chess, Carroms), Outdoor Sports Grounds (Cricket Ground, Football Field, Basketball Courts, Volleyball Courts), Gymnasium, and Yoga & Meditation Hall.
   * IMPORTANT: SR University does NOT have a swimming pool on campus.
+- Official Fee Payment Portals:
+  * Academic Fees, Tuition Fees, and Hostel Dues: Paid online via the official university payment portal at https://sruniv.com/
+  * End Semester Examination Fees, Convocation Fee, and Condonation Fee: Paid through the student SRAAP portal at https://sraap.in/ (or https://sraap.in/student_login.php)
+  Always clearly distinguish between these two portals when answering questions about fees, tuition, hostel dues, end semester fees, convocation fees, or condonation fees.
 - SSM Gamification / Coin Certificate Uploads: Certificates for SSM / Gamification coins must be uploaded via the official university portal at https://www.sruniv.com (under the Student SSM / Gamification section).
 - SSM Alpha & Sigma Coin Claims & Redemptions (Official Coin Costs):
   1. Coffee with VC: 1,000 Alpha / Sigma Coins
@@ -340,10 +344,13 @@ ROLE_SYNONYMS = {
     "buses": ["bus", "buses", "transport", "transportation"],
     "transport": ["bus", "buses", "transport", "transportation"],
     "transportation": ["bus", "buses", "transport", "transportation"],
-    "fee": ["fee", "fees", "payment", "accounts", "dues"],
-    "fees": ["fee", "fees", "payment", "accounts", "dues"],
-    "payment": ["fee", "fees", "payment", "dues", "receipt", "receipts"],
+    "fee": ["fee", "fees", "payment", "accounts", "dues", "tuition"],
+    "fees": ["fee", "fees", "payment", "accounts", "dues", "tuition"],
+    "tuition": ["tuition", "fee", "fees", "payment", "dues", "sruniv"],
+    "payment": ["fee", "fees", "payment", "dues", "receipt", "receipts", "tuition"],
     "receipt": ["fee", "fees", "payment", "dues", "receipt", "receipts"],
+    "convocation": ["convocation", "fee", "sraap", "certificate"],
+    "condonation": ["condonation", "fee", "attendance", "medical", "sraap"],
     "hostel": ["hostel", "hostels", "warden"],
     "hostels": ["hostel", "hostels", "warden"],
     "warden": ["hostel", "hostels", "warden"],
