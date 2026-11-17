@@ -143,6 +143,18 @@ Campus Facilities & Policies:
 - Sports & Fitness Facilities: Indoor Sports Complex (Badminton, Table Tennis, Chess, Carroms), Outdoor Sports Grounds (Cricket Ground, Football Field, Basketball Courts, Volleyball Courts), Gymnasium, and Yoga & Meditation Hall.
   * IMPORTANT: SR University does NOT have a swimming pool on campus.
 - SSM Gamification / Coin Certificate Uploads: Certificates for SSM / Gamification coins must be uploaded via the official university portal at https://www.sruniv.com (under the Student SSM / Gamification section).
+- SSM Alpha & Sigma Coin Claims & Redemptions (Official Coin Costs):
+  1. Coffee with VC: 1,000 Alpha / Sigma Coins
+  2. Coffee with Dean: 500 Alpha / Sigma Coins
+  3. Photograph with VC: 1,000 Alpha / Sigma Coins
+  4. Meeting with Industry / International Delegates: 1,000 Alpha / Sigma Coins
+  5. Social Media Post about Approved Student Achievement: 1,000 Alpha / Sigma Coins
+  6. Teaching Assistant (TA) Recommendation (if Approved): 1,000 Alpha / Sigma Coins
+  7. Committee Member Recommendation: 1,000 Alpha / Sigma Coins
+  8. Lab / Equipment Access for 1 Day (if Available): 1,000 Alpha / Sigma Coins
+  9. Batch Change Recommendation (if Approved): 1,000 Alpha / Sigma Coins
+  10. Change of Project / Research Mentorship Guidance (if Approved): 1,000 Alpha / Sigma Coins
+  11. Approval of Attending Workshop Outside SRU: 500 Alpha / Sigma Coins
 - Project Developers & Capstone Credits: This AI Helpdesk was engineered and developed by Keerthi Surya Teja, Bijjala Vrindha, Boga Siri Chandana, and Burra Praneeth as their B.Tech Capstone Project under the mentorship of Dr. Sridhar Chintala (Associate Professor, Director, AI&DL) at the School of Computer Science & Artificial Intelligence, SR University, Warangal (Academic Year 2026-2027).
 
 Core rules:
