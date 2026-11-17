@@ -33,6 +33,91 @@ def get_groq_client(api_key: str) -> OpenAI:
     return _openai_client_instance
 
 # ============================================================================
+# Dynamic Calendar & Holiday Engine (Real-Time Calculation)
+# ============================================================================
+
+OFFICIAL_UNIVERSITY_HOLIDAYS = {
+    "2026-08-15": "Independence Day",
+    "2026-08-26": "Eid Miladun Nabi",
+    "2026-08-28": "Raksha Bandhan",
+    "2026-09-04": "Sri Krishna Astami",
+    "2026-09-14": "Vinayaka Chaturthi",
+    "2026-10-02": "Mahatma Gandhi Jayanti",
+    "2026-10-19": "Durga Ashtami",
+    "2026-10-20": "Dusshera / Dasara",
+    "2026-11-08": "Deepavali / Diwali Break",
+    "2026-11-24": "Guru Nanak Jayanti",
+    "2026-12-23": "Kisan Diwas",
+    "2026-12-25": "Christmas",
+    "2027-01-01": "New Year Day",
+    "2027-01-14": "Sankranti / Pongal Break",
+    "2027-01-15": "Kanuma",
+    "2027-01-26": "Republic Day",
+    "2027-03-08": "Maha Shivratri",
+    "2027-03-25": "Holi",
+    "2027-03-30": "Ugadi (Telugu New Year)",
+    "2027-04-09": "Good Friday",
+    "2027-04-14": "Dr. B.R. Ambedkar Jayanti",
+    "2027-05-01": "May Day"
+}
+
+def get_dynamic_upcoming_schedule(start_date=None, count=12):
+    from datetime import timedelta
+    if start_date is None:
+        start_date = datetime.now()
+    
+    upcoming_all = []
+    upcoming_gazetted = []
+    
+    curr = start_date + timedelta(days=1)
+    while len(upcoming_all) < count and curr < start_date + timedelta(days=120):
+        d_str = curr.strftime("%Y-%m-%d")
+        day_name = curr.strftime("%A")
+        date_formatted = curr.strftime("%d %B %Y")
+        is_official = d_str in OFFICIAL_UNIVERSITY_HOLIDAYS
+        is_sunday = curr.weekday() == 6
+        is_saturday = curr.weekday() == 5
+
+        if is_official:
+            name = OFFICIAL_UNIVERSITY_HOLIDAYS[d_str]
+            entry_txt = f"{day_name}, {date_formatted} - {name} (Official University Holiday)"
+            upcoming_all.append(entry_txt)
+            upcoming_gazetted.append(f"{day_name}, {date_formatted} - {name}")
+        elif is_sunday or is_saturday:
+            entry_txt = f"{day_name}, {date_formatted} - Weekend ({day_name})"
+            upcoming_all.append(entry_txt)
+            
+        curr += timedelta(days=1)
+        
+    return upcoming_all, upcoming_gazetted
+
+def get_current_time_context(query: str = "") -> str:
+    """Generate dynamic real-time clock context and live calendar schedule."""
+    now = datetime.now()
+    base_time = f"Time Context: {now.strftime('%I:%M %p, %A, %d %B %Y')}. Lecture Hours: 09:30 AM - 05:30 PM."
+    
+    all_breaks, gazetted = get_dynamic_upcoming_schedule(now, count=12)
+    all_breaks_text = "\n".join([f"  {idx}. {item}" for idx, item in enumerate(all_breaks[:10], 1)])
+    gazetted_text = "\n".join([f"  {idx}. {item}" for idx, item in enumerate(gazetted[:6], 1)])
+    
+    calendar_block = f"""
+REAL-TIME DYNAMIC CALENDAR & HOLIDAYS SCHEDULE (Live calculated from Today: {now.strftime('%A, %d %B %Y')}):
+- Official Academic Calendar Link: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf
+- Next Upcoming Holidays INCLUDING Saturdays and Sundays:
+{all_breaks_text}
+- Next Official Gazetted University Holidays (Excluding ordinary weekends):
+{gazetted_text}
+- Academic Calendar Semester Dates:
+  * 27 - 28 November 2026: End-Term Practical / Lab Examinations
+  * 28 November 2026 (Saturday): Last Working Day of Odd Semester
+  * 30 November - 05 December 2026: Regular End-Term Theory Examinations (SEE)
+  * 11 December 2026: Declaration of Results
+  * 01 January 2027: Even Semester 2026-27 Commencement
+  * 04 January 2027: First Teaching Day of Even Semester
+"""
+    return f"{base_time}\n{calendar_block}"
+
+# ============================================================================
 # AI-First Architecture:
 #   1. User query → Fast database pre-retrieval
 #   2. Groq AI answers directly using verified university facts
@@ -55,14 +140,13 @@ Core rules:
    State their full name, their designation/role (e.g. Director, AI & DL; Associate Professor; HOD; Dean), official email, and cabin/room location directly from the records.
 4. When multiple faculty or staff match a query: list only their names (one per line). Do not dump emails/cabins unless specifically requested.
 5. Academic Calendar link: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf. Never use expired links.
-6. Upcoming holidays: In November 2026, the next holiday is Guru Nanak Jayanti on Tuesday, 24 November 2026, followed by Kisan Diwas (23 Dec) and Christmas (25 Dec).
+6. Dynamic Calendar & Holidays:
+   - When asked for upcoming holidays (including or excluding Saturdays and Sundays):
+     Directly answer with the exact requested number of upcoming dates from the REAL-TIME DYNAMIC CALENDAR SCHEDULE in the context.
+     Format as a clear numbered list with day, date, and reason (e.g., 1. Saturday, 21 November 2026 - Weekend (Saturday)).
+     Never claim that Saturday or Sunday dates are not listed; the dynamic calendar context provides the exact dates.
 7. If no record is found: answer "No matching university record found."
 """
-
-def get_current_time_context() -> str:
-    """Generate dynamic real-time clock context to keep LLM aware of the exact moment."""
-    now = datetime.now()
-    return f"Time Context: {now.strftime('%I:%M %p, %A, %d %B %Y')}. Lecture Hours: 09:30 AM - 05:30 PM."
 
 GREETINGS = {"hi", "hello", "hey", "good morning", "good evening", "greetings", "howdy"}
 
@@ -456,6 +540,26 @@ def generate_rag_response(query: str, session_id: str, db) -> Tuple[str, List[Di
     # Step 3: Fallback - when LLM is unavailable
     logger.info("[FALLBACK] LLM unavailable, using keyword fallback")
 
+    # Dynamic fallback check for holiday/weekend queries
+    q_low = q_clean.lower()
+    if any(w in q_low for w in ["holiday", "holidays"]) and any(w in q_low for w in ["upcoming", "next", "saturday", "sunday", "weekend", "five", "5", "three", "3"]):
+        all_breaks, gazetted = get_dynamic_upcoming_schedule(datetime.now(), count=12)
+        include_wk = any(w in q_low for w in ["saturday", "sunday", "weekend", "including"])
+        chosen = all_breaks if include_wk else gazetted
+        count = 5
+        if "three" in q_low or " 3 " in q_low: count = 3
+        elif "ten" in q_low or " 10 " in q_low: count = 10
+        elif "five" in q_low or " 5 " in q_low: count = 5
+
+        formatted_list = "\n".join([f"{idx}. {item}" for idx, item in enumerate(chosen[:count], 1)])
+        cal_url = "https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf"
+        ans = f"Based on the current date ({datetime.now().strftime('%A, %d %B %Y')}), here are the next upcoming holidays{' including weekends' if include_wk else ''}:\n\n{formatted_list}\n\nOfficial Academic Calendar: {cal_url}"
+        t_end = time.perf_counter()
+        timings["rag_ms"] = 0.0
+        timings["llm_ms"] = (t_end - t_llm_start) * 1000
+        timings["total_ms"] = (t_end - t_start) * 1000
+        return clean_plain_text(ans), [], timings
+
     t_search_start = time.perf_counter()
     matched_records = search_database(q_clean, db, category="all")
     t_search_end = time.perf_counter()
@@ -510,7 +614,7 @@ def _ai_first_pipeline(
     conversation_history = _build_conversation_messages(session_id, db)
 
     # Construct messages: dynamic system (with real-time clock) + pre-retrieved facts + history + current query
-    dynamic_prompt = f"{get_current_time_context()}\n{SYSTEM_PROMPT}"
+    dynamic_prompt = f"{get_current_time_context(query)}\n{SYSTEM_PROMPT}"
     messages = [{"role": "system", "content": dynamic_prompt}]
 
     has_strong_match = bool(pre_records and pre_records[0].get("score", 0) >= 12)
