@@ -1,5 +1,6 @@
 import os
 import io
+import re
 import base64
 import asyncio
 import logging
