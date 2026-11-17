@@ -608,8 +608,20 @@ def get_recent_sessions(db: Session = Depends(get_db)):
 # Admin CRUD: Faculty
 # ============================================================================
 
+@app.get("/api/admin/counts")
+def get_admin_counts(db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
+    """Fast, protected endpoint returning only record count metrics for admin dashboard."""
+    return {
+        "faculty": db.query(Faculty).count(),
+        "administrative": db.query(AdministrativePersonnel).count(),
+        "clubs": db.query(StudentClub).count(),
+        "websites": db.query(CollegeWebsite).count(),
+        "knowledge": db.query(UniversityKnowledge).count(),
+    }
+
+
 @app.get("/api/faculty")
-def get_all_faculty(db: Session = Depends(get_db)):
+def get_all_faculty(db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
     faculty = db.query(Faculty).order_by(Faculty.emp_id.asc()).all()
     return [f.to_dict() for f in faculty]
 
@@ -675,7 +687,7 @@ def delete_faculty(emp_id: str, db: Session = Depends(get_db), is_admin: bool = 
 # ============================================================================
 
 @app.get("/api/administrative")
-def get_all_administrative(db: Session = Depends(get_db)):
+def get_all_administrative(db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
     records = db.query(AdministrativePersonnel).order_by(AdministrativePersonnel.id.asc()).all()
     return [r.to_dict() for r in records]
 
@@ -729,7 +741,7 @@ def delete_administrative(record_id: int, db: Session = Depends(get_db), is_admi
 # ============================================================================
 
 @app.get("/api/clubs")
-def get_all_clubs(db: Session = Depends(get_db)):
+def get_all_clubs(db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
     clubs = db.query(StudentClub).order_by(StudentClub.id.asc()).all()
     return [c.to_dict() for c in clubs]
 
@@ -777,7 +789,7 @@ def delete_club(club_id: int, db: Session = Depends(get_db), is_admin: bool = De
 # ============================================================================
 
 @app.get("/api/websites")
-def get_all_websites(db: Session = Depends(get_db)):
+def get_all_websites(db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
     websites = db.query(CollegeWebsite).order_by(CollegeWebsite.id.asc()).all()
     return [w.to_dict() for w in websites]
 
@@ -825,7 +837,7 @@ def delete_website(site_id: int, db: Session = Depends(get_db), is_admin: bool =
 # ============================================================================
 
 @app.get("/api/knowledge")
-def get_all_knowledge(category: Optional[str] = None, db: Session = Depends(get_db)):
+def get_all_knowledge(category: Optional[str] = None, db: Session = Depends(get_db), is_admin: bool = Depends(verify_admin_token)):
     query = db.query(UniversityKnowledge)
     if category and category.strip():
         query = query.filter(UniversityKnowledge.category == category.strip())

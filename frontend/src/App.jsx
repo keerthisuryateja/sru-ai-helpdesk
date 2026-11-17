@@ -265,7 +265,6 @@ export default function App() {
   // Initial load
   useEffect(() => {
     fetchHistory(sessionId);
-    fetchAdminCounts();
 
     const player = audioPlayerRef.current;
     player.onplay = () => {
@@ -302,11 +301,11 @@ export default function App() {
 
   // Fetch admin records when switching tabs in admin view
   useEffect(() => {
-    if (activeView === 'admin') {
+    if (activeView === 'admin' && authRole === 'admin' && authToken) {
       fetchAdminRecords(adminTab);
       fetchAdminCounts();
     }
-  }, [activeView, adminTab]);
+  }, [activeView, adminTab, authRole, authToken]);
 
   // Verify authentication token validity on load
   useEffect(() => {
@@ -790,27 +789,22 @@ export default function App() {
   // =========================================================================
 
   const fetchAdminCounts = async () => {
+    if (!authToken || authRole !== 'admin') return;
     try {
-      const [fac, adm, clb, web, knw] = await Promise.all([
-        fetch('/api/faculty').then((r) => r.json()),
-        fetch('/api/administrative').then((r) => r.json()),
-        fetch('/api/clubs').then((r) => r.json()),
-        fetch('/api/websites').then((r) => r.json()),
-        fetch('/api/knowledge').then((r) => r.json())
-      ]);
-      setAdminCounts({
-        faculty: fac.length || 0,
-        administrative: adm.length || 0,
-        clubs: clb.length || 0,
-        websites: web.length || 0,
-        knowledge: knw.length || 0
+      const res = await fetch('/api/admin/counts', {
+        headers: { Authorization: `Bearer ${authToken}` }
       });
+      if (res.ok) {
+        const counts = await res.json();
+        setAdminCounts(counts);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
   const fetchAdminRecords = async (tab) => {
+    if (!authToken || authRole !== 'admin') return;
     let ep = '/api/faculty';
     if (tab === 'administrative') ep = '/api/administrative';
     else if (tab === 'clubs') ep = '/api/clubs';
@@ -818,7 +812,9 @@ export default function App() {
     else if (tab === 'knowledge') ep = '/api/knowledge';
 
     try {
-      const res = await fetch(ep);
+      const res = await fetch(ep, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setAdminRecords(data);
