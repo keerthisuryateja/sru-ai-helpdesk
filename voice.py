@@ -174,9 +174,11 @@ def text_to_speech_base64(text: str, voice: str = "af_sarah", speed: float = 1.0
 
     import time
 
-    # Clean text for TTS
+    # Clean text for TTS (strip markdown images, asterisks, brackets)
+    clean_text = re.sub(r'!\[.*?\]\([^\)]+\)', '', text)
+    clean_text = re.sub(r'/[a-zA-Z0-9_\-\.]+\.png', '', clean_text)
     clean_text = (
-        text.replace("*", "")
+        clean_text.replace("*", "")
         .replace("#", "")
         .replace("`", "")
         .replace("[", "")

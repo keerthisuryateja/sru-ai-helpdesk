@@ -151,6 +151,20 @@ Campus Facilities & Policies:
   * Mentor Support & Academic Help: The mentor guides students through academic-related issues, course concerns, attendance, study planning, and general counseling.
   * Leaving Campus Prior (Early Exit): Students can leave the campus prior to normal closing hours by obtaining their assigned mentor's signature/approval on an early exit gate pass.
   * Checking Mentor Details: Students can check their assigned mentor's details (faculty name, cabin, email) directly on their student SRAAP dashboard at https://sraap.in/ (or https://sraap.in/student_login.php).
+- Campus Map & Room Navigation Guide:
+  * Official Campus Map Overview: When a user asks map-related questions or questions about block locations (e.g., 'campus map', 'where is block 11', 'where is block 10', 'where is block 1', 'how to find a room', 'room 3201', 'campus layout', 'directions'):
+    Reference and embed the official map:
+    You can refer to the following map overview of SR University campus:
+    ![SR University Campus Map](/map_overview.png)
+  * Room Numbering Navigation System (Tip):
+    - For Blocks 1 to 9 (4-digit room numbers, e.g. 3201):
+      * 1st digit: Block number (e.g., 3 indicates Block 3)
+      * 2nd digit: Floor (e.g., 2 indicates 2nd Floor)
+      * Last 2 digits: Room number (e.g., 01 indicates Room 01)
+    - For Blocks 10 & 11 (5-digit room numbers, e.g. 11201 or 10105):
+      * 1st and 2nd digits: Block number (e.g., 11 indicates Block 11, 10 indicates Block 10)
+      * 3rd digit: Floor (e.g., 2 indicates 2nd Floor, 1 indicates 1st Floor)
+      * Last 2 digits: Room number (e.g., 01 indicates Room 01, 05 indicates Room 05)
 - SSM Gamification / Coin Certificate Uploads: Certificates for SSM / Gamification coins must be uploaded via the official university portal at https://www.sruniv.com (under the Student SSM / Gamification section).
 - SSM Alpha & Sigma Coin Claims & Redemptions (Official Coin Costs):
   1. Coffee with VC: 1,000 Alpha / Sigma Coins
@@ -167,7 +181,7 @@ Campus Facilities & Policies:
 - Project Developers & Capstone Credits: This AI Helpdesk was engineered and developed by Keerthi Surya Teja, Bijjala Vrindha, Boga Siri Chandana, and Burra Praneeth as their B.Tech Capstone Project under the mentorship of Dr. Sridhar Chintala (Associate Professor, Director, AI&DL) at the School of Computer Science & Artificial Intelligence, SR University, Warangal (Academic Year 2026-2027).
 
 Core rules:
-1. Output concise, factual plain text. Use separate lines for lists. Do NOT use markdown (no asterisks, no hashes, no bold).
+1. Output concise, factual plain text. Use separate lines for lists. Do NOT use markdown (no asterisks, no hashes, no bold), except for embedding the campus map image tag ![SR University Campus Map](/map_overview.png) when answering map or block location queries.
 2. PRIVACY: Never output personal mobile or phone numbers. Provide only official email addresses, cabin numbers, or departments.
 3. When asked about an individual faculty, staff, or officer (e.g. 'who is Dr. Sridhar Chintala', 'who is Dean of Computer Science'):
    State their full name, their designation/role, official email, and complete cabin/room location directly from the records without cutting off.
@@ -252,6 +266,13 @@ def clean_plain_text(text: str) -> str:
     text = text.replace("\u2011", "-").replace("\u2013", "-").replace("\u2014", "-")
     text = unicodedata.normalize("NFKD", text)
 
+    # Protect markdown images ![alt](url) from having brackets removed
+    images = []
+    def _img_repl(m):
+        images.append(m.group(0))
+        return f"@@@IMGTOKEN{len(images)-1}@@@"
+    text = re.sub(r'!\[.*?\]\([^\)]+\)', _img_repl, text)
+
     # Protect URLs from having underscores/characters removed
     urls = []
     def _url_repl(m):
@@ -260,12 +281,14 @@ def clean_plain_text(text: str) -> str:
 
     text = re.sub(r'https?://[^\s]+', _url_repl, text)
 
-    # Remove markdown bold/italic/header symbols (without touching protected URLs)
+    # Remove markdown bold/italic/header symbols (without touching protected URLs or images)
     cleaned = re.sub(r"[\*#_`~\[\]]", "", text)
 
-    # Restore URLs
+    # Restore URLs and images
     for idx, u in enumerate(urls):
         cleaned = cleaned.replace(f"@@@URLTOKEN{idx}@@@", u)
+    for idx, img in enumerate(images):
+        cleaned = cleaned.replace(f"@@@IMGTOKEN{idx}@@@", img)
 
     # Normalize spaces per line while preserving line breaks
     lines = [re.sub(r"[ \t]+", " ", line).strip() for line in cleaned.splitlines()]

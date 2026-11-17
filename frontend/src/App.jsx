@@ -63,11 +63,12 @@ const PROMPTS_BY_CATEGORY = {
     "How to reach the Registrar Office?"
   ],
   campus: [
+    "Where is Block 11 and how does room numbering work?",
+    "Show campus map overview",
     "What are the hostel out-pass rules and curfew timings?",
     "What are the Central Library operating hours?",
     "What sports and gym facilities are open to students?",
-    "Where is the campus Health and Medical Centre located?",
-    "What is the highest placement package achieved?"
+    "Where is the campus Health and Medical Centre located?"
   ],
   coins: [
     "What causes penalty coin deductions in SSM?",
@@ -371,6 +372,8 @@ export default function App() {
     try {
       window.speechSynthesis.cancel();
       const cleanSpeech = text
+        .replace(/!\[.*?\]\([^\)]+\)/g, '')
+        .replace(/\/map_overview\.png/g, '')
         .replace(/https?:\/\/[^\s]+/g, 'the link on screen')
         .replace(/[*_#`~]/g, '')
         .replace(/[()]/g, '')
@@ -950,6 +953,48 @@ export default function App() {
     });
   });
 
+  const renderMessageContent = (content) => {
+    if (!content) return null;
+
+    const hasMapImage = content.includes('/map_overview.png') || content.includes('map overview.png');
+    const cleanedText = content.replace(/!\[.*?\]\([^\)]*?map_overview\.png[^\)]*?\)/gi, '').trim();
+
+    return (
+      <>
+        <span>{cleanedText}</span>
+        {hasMapImage && (
+          <div className="embedded-map-card" style={{ marginTop: '0.85rem', marginBottom: '0.35rem' }}>
+            <a
+              href="/map_overview.png"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Click to view full high-resolution SR University campus map"
+            >
+              <img
+                src="/map_overview.png"
+                alt="SR University Campus Map Overview"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '340px',
+                  objectFit: 'contain',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-subtle)',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+                  cursor: 'pointer',
+                  display: 'block',
+                  backgroundColor: 'var(--bg-subtle)'
+                }}
+              />
+            </a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+              <span>🗺️ <strong>SR University Campus Map</strong> · Click image to expand</span>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="app-shell">
       {/* Top Header */}
@@ -1378,7 +1423,7 @@ export default function App() {
                   <div key={m.id} className={`message-card ${m.role}`}>
                     <span className="message-sender">{m.role === 'user' ? 'You' : 'SRU AI'}</span>
                     <div className="message-content-box">
-                      {m.content}
+                      {m.role === 'assistant' ? renderMessageContent(m.content) : m.content}
 
                       {/* Message Actions: Audio replay & Copy */}
                       {m.role === 'assistant' && (

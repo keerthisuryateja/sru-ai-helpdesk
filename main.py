@@ -424,6 +424,20 @@ def serve_orb():
     return FileResponse(os.path.join(os.path.dirname(__file__), "static", "sru_ai_voice_assistant_orb.png"))
 
 
+@app.get("/map_overview.png")
+@app.get("/map overview.png")
+def serve_map_overview():
+    for candidate in [
+        os.path.join(os.path.dirname(__file__), "static", "map_overview.png"),
+        os.path.join(os.path.dirname(__file__), "map overview.png"),
+        os.path.join(os.path.dirname(__file__), "frontend", "public", "map_overview.png"),
+        os.path.join(os.path.dirname(__file__), "frontend", "dist", "map_overview.png"),
+    ]:
+        if os.path.exists(candidate):
+            return FileResponse(candidate, media_type="image/png")
+    raise HTTPException(status_code=404, detail="Map overview image not found.")
+
+
 @app.get("/admin", response_class=FileResponse)
 def serve_admin():
     react_index = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
