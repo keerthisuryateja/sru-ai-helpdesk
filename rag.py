@@ -146,6 +146,11 @@ Campus Facilities & Policies:
   * Academic Fees, Tuition Fees, and Hostel Dues: Paid online via the official university payment portal at https://sruniv.com/
   * End Semester Examination Fees, Convocation Fee, and Condonation Fee: Paid through the student SRAAP portal at https://sraap.in/ (or https://sraap.in/student_login.php)
   Always clearly distinguish between these two portals when answering questions about fees, tuition, hostel dues, end semester fees, convocation fees, or condonation fees.
+- Student Batch Mentorship System:
+  * Batch Size & Allocation: Every batch has 30 members/students, and a dedicated faculty mentor is assigned to each batch.
+  * Mentor Support & Academic Help: The mentor guides students through academic-related issues, course concerns, attendance, study planning, and general counseling.
+  * Leaving Campus Prior (Early Exit): Students can leave the campus prior to normal closing hours by obtaining their assigned mentor's signature/approval on an early exit gate pass.
+  * Checking Mentor Details: Students can check their assigned mentor's details (faculty name, cabin, email) directly on their student SRAAP dashboard at https://sraap.in/ (or https://sraap.in/student_login.php).
 - SSM Gamification / Coin Certificate Uploads: Certificates for SSM / Gamification coins must be uploaded via the official university portal at https://www.sruniv.com (under the Student SSM / Gamification section).
 - SSM Alpha & Sigma Coin Claims & Redemptions (Official Coin Costs):
   1. Coffee with VC: 1,000 Alpha / Sigma Coins
@@ -390,7 +395,11 @@ ROLE_SYNONYMS = {
     "holiday": ["holiday", "holidays", "vacation", "break", "calendar"],
     "holidays": ["holiday", "holidays", "vacation", "break", "calendar"],
     "vacation": ["holiday", "holidays", "vacation", "break", "calendar"],
-    "calendar": ["calendar", "academic calendar", "semester dates", "schedule", "exams"]
+    "calendar": ["calendar", "academic calendar", "semester dates", "schedule", "exams"],
+    "mentor": ["mentor", "mentors", "mentorship", "batch", "gate pass", "sraap", "counselor"],
+    "mentors": ["mentor", "mentors", "mentorship", "batch", "gate pass", "sraap", "counselor"],
+    "mentorship": ["mentor", "mentors", "mentorship", "batch", "gate pass", "sraap"],
+    "batch": ["batch", "batches", "mentor", "mentors", "30 members", "sraap"]
 }
 
 
