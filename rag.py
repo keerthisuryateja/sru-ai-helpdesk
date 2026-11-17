@@ -36,16 +36,38 @@ def get_groq_client(api_key: str) -> OpenAI:
 # Dynamic Calendar & Holiday Engine (Real-Time Calculation)
 # ============================================================================
 
+WORKING_SATURDAYS = {
+    "2026-08-01": "Working Day for Staff & Scholars",
+    "2026-08-08": "Working Day for Staff & Scholars",
+    "2026-08-22": "Working Day for Staff & Scholars",
+    "2026-09-19": "Working Day for Staff & Scholars (In lieu of 27/08/2026 holiday)",
+    "2026-09-26": "Working Day (In lieu of 05/09/2026 holiday) & Mid-Term Exam",
+    "2026-10-10": "Working Day for Staff & Scholars (In lieu of 03/10/2026 holiday)",
+    "2026-11-14": "Working Day for Staff & Scholars (In lieu of 07/11/2026 holiday)",
+    "2026-11-28": "Buffer Classes / Teaching Day (In lieu of holiday on 23/11/2026); Practical / Lab Exam; Last Working Day of Odd Semester",
+    "2026-12-05": "Working Day for Staff & Scholars; Regular End Term Theory Exam (SEE)",
+    "2027-01-02": "Working Day for Staff & Scholars"
+}
+
 OFFICIAL_UNIVERSITY_HOLIDAYS = {
     "2026-08-15": "Independence Day",
     "2026-08-26": "Eid Miladun Nabi",
+    "2026-08-27": "Holiday Declared (19/09/2026 working in lieu)",
     "2026-08-28": "Raksha Bandhan",
+    "2026-08-29": "National Sports Day Holiday",
     "2026-09-04": "Sri Krishna Astami",
+    "2026-09-05": "Holiday Declared (26/09/2026 working in lieu)",
     "2026-09-14": "Vinayaka Chaturthi",
     "2026-10-02": "Mahatma Gandhi Jayanti",
+    "2026-10-03": "Holiday Declared (10/10/2026 working in lieu)",
     "2026-10-19": "Durga Ashtami",
     "2026-10-20": "Dusshera / Dasara",
+    "2026-10-21": "Dusshera Holidays",
+    "2026-10-22": "Dusshera Holidays",
+    "2026-10-23": "Dusshera Holidays",
+    "2026-11-07": "Holiday Declared (14/11/2026 working in lieu)",
     "2026-11-08": "Deepavali / Diwali Break",
+    "2026-11-23": "Official Holiday Declared (28/11/2026 working in lieu for Buffer Classes/Teaching Day)",
     "2026-11-24": "Guru Nanak Jayanti",
     "2026-12-23": "Kisan Diwas",
     "2026-12-25": "Christmas",
@@ -74,11 +96,16 @@ def get_dynamic_upcoming_schedule(start_date=None, count=12):
         d_str = curr.strftime("%Y-%m-%d")
         day_name = curr.strftime("%A")
         date_formatted = curr.strftime("%d %B %Y")
+        
         is_official = d_str in OFFICIAL_UNIVERSITY_HOLIDAYS
+        is_working_saturday = d_str in WORKING_SATURDAYS
         is_sunday = curr.weekday() == 6
         is_saturday = curr.weekday() == 5
 
-        if is_official:
+        if is_working_saturday:
+            # Working Saturday in lieu of holiday or for buffer classes - NOT A HOLIDAY
+            pass
+        elif is_official:
             name = OFFICIAL_UNIVERSITY_HOLIDAYS[d_str]
             entry_txt = f"{day_name}, {date_formatted} - {name} (Official University Holiday)"
             upcoming_all.append(entry_txt)
@@ -101,19 +128,21 @@ def get_current_time_context(query: str = "") -> str:
     gazetted_text = "\n".join([f"  {idx}. {item}" for idx, item in enumerate(gazetted[:6], 1)])
     
     calendar_block = f"""
-REAL-TIME DYNAMIC CALENDAR & HOLIDAYS SCHEDULE (Live calculated from Today: {now.strftime('%A, %d %B %Y')}):
-- Official Academic Calendar Link: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf
-- Next Upcoming Holidays INCLUDING Saturdays and Sundays:
+REAL-TIME ACADEMIC CALENDAR & HOLIDAYS SCHEDULE (Extracted from Official SRAAP Calendar: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf | Today: {now.strftime('%A, %d %B %Y')}):
+- Next Upcoming Official University Holidays & Weekends:
 {all_breaks_text}
-- Next Official Gazetted University Holidays (Excluding ordinary weekends):
+- Next Official Declared / Gazetted University Holidays (Excluding ordinary weekends):
 {gazetted_text}
-- Academic Calendar Semester Dates:
-  * 27 - 28 November 2026: End-Term Practical / Lab Examinations
-  * 28 November 2026 (Saturday): Last Working Day of Odd Semester
-  * 30 November - 05 December 2026: Regular End-Term Theory Examinations (SEE)
-  * 11 December 2026: Declaration of Results
-  * 01 January 2027: Even Semester 2026-27 Commencement
-  * 04 January 2027: First Teaching Day of Even Semester
+- Crucial Upcoming Academic & Working Dates:
+  * Monday, 23 November 2026: Official University Holiday declared (in lieu of 28/11/2026 working day).
+  * Tuesday, 24 November 2026: Official University Holiday - Guru Nanak Jayanti.
+  * Friday, 27 November 2026: Buffer Classes / Teaching Day & Practical / Lab Examinations.
+  * Saturday, 28 November 2026: WORKING DAY - Buffer Classes / Teaching Day (In lieu of holiday on 23/11/2026); Practical / Lab Exam; Last Working Day of Odd Semester. (NOTE: Saturday 28 November 2026 is officially a working teaching day across the university, NOT a holiday!)
+  * Sunday, 29 November 2026: Weekend Break.
+  * Monday, 30 November - Saturday, 05 December 2026: Regular Odd Semester End-Term Theory Examinations (SEE).
+  * 11 December 2026: Declaration of Odd Semester Results.
+  * 01 January 2027: Even Semester 2026-27 Commencement.
+  * 04 January 2027: First Teaching Day of Even Semester.
 """
     return f"{base_time}\n{calendar_block}"
 
@@ -187,11 +216,17 @@ Core rules:
    State their full name, their designation/role, official email, and complete cabin/room location directly from the records without cutting off.
 4. When multiple faculty or staff match a query: list only their names (one per line). Do not dump emails/cabins unless specifically requested.
 5. Academic Calendar link: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf. Never use expired links.
-6. Dynamic Calendar & Holidays:
+6. Dynamic Calendar & Holidays (Official SRAAP Calendar Source):
    - When asked for upcoming holidays (including or excluding Saturdays and Sundays):
      Directly answer with the exact requested number of upcoming dates from the REAL-TIME DYNAMIC CALENDAR SCHEDULE in the context.
      Format as a clear numbered list with day, date, and reason (e.g., 1. Saturday, 21 November 2026 - Weekend (Saturday)).
      Never claim that Saturday or Sunday dates are not listed; the dynamic calendar context provides the exact dates.
+   - Specific Academic Dates & Working Saturdays:
+     * Monday, 23 November 2026: Official University Holiday declared (with Saturday 28/11/2026 working in lieu).
+     * Tuesday, 24 November 2026: Official University Holiday (Guru Nanak Jayanti).
+     * Friday, 27 November 2026: Buffer Classes / Teaching Day & Practical / Lab Exams.
+     * Saturday, 28 November 2026: Official Buffer Classes / Teaching Day (In lieu of holiday on 23/11/2026), Practical / Lab Exams, and the Last Working Day of Odd Semester. It is a full working day across the university according to the official academic calendar (https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf). It is NOT a departmental exception and NOT a holiday.
+     * When asked about Saturday 28 November 2026: Confirm directly that according to the official SR University Academic Calendar, Saturday 28 November 2026 is officially a Buffer Classes / Teaching Day in lieu of the holiday on 23 November 2026, as well as Practical / Lab Exam day and the Last Working Day of the Odd Semester.
 7. Information Sources & Reasoning:
    - Always prioritize the OFFICIAL UNIVERSITY DATABASE RECORDS.
    - If database records are limited or external web search results are provided in the context, reason logically and provide a helpful, factual answer based on the web results instead of a generic negative answer.
