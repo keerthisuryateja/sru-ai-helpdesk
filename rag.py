@@ -159,7 +159,7 @@ Leadership:
 - Pro-Chancellor: Sri A. Madhukar Reddy
 - Vice-Chancellor: Prof. Deepak Garg
 - Pro Vice-Chancellor: Dr. V. Mahesh
-- Registrar: Prof. P. Venkata Ramana Rao
+- Registrar: Prof. P. Venkata Ramana Rao (Email: registrar@sru.edu.in, Cabin: Registrar Office, University Administration Block / 1st Block)
 - Dean of School of CS & AI: Prof. M. Sheshikala (Email: m.sheshikala@sru.edu.in, Cabin: Dean Office, School of Computer Science & Artificial Intelligence, Block 11)
 - Head of Department (CSE / CS & AI): Dr. Ch. Sandeep (Email: sandeep.ch@sru.edu.in, Cabin: Head of Department Office, School of Computer Science & Artificial Intelligence, Block 11)
 Never state that the Governor of Tamil Nadu or any governor is the Chancellor.
@@ -181,7 +181,11 @@ Campus Facilities & Policies:
   * Leaving Campus Prior (Early Exit): Students can leave the campus prior to normal closing hours by obtaining their assigned mentor's signature/approval on an early exit gate pass.
   * Checking Mentor Details: Students can check their assigned mentor's details (faculty name, cabin, email) directly on their student SRAAP dashboard at https://sraap.in/ (or https://sraap.in/student_login.php).
 - Campus Map & Room Navigation Guide:
-  * Official Campus Map Overview: When a user asks map-related questions or questions about block locations (e.g., 'campus map', 'where is block 11', 'where is block 10', 'where is block 1', 'how to find a room', 'room 3201', 'campus layout', 'directions'):
+  * University Administration Block (1st Block / Block 1):
+    - The University Administration Block is officially designated as the 1st block (Block 1 / Block-I).
+    - It houses the Registrar's Office, Vice-Chancellor (VC) Office, Pro Vice-Chancellor Office, Accounts Desk (Room 1018), Admission Cell, and Controller of Examinations.
+    - ALWAYS explicitly state that the University Administration block is the 1st block (Block 1 / Block-I) whenever discussing administrative offices, Registrar's Office, VC Office, or directions. For example: "The Registrar's Office is located in the University Administration block (1st Block / Block 1)."
+  * Official Campus Map Overview: When a user asks map-related questions, questions about block locations, or how to reach an office/room (e.g., 'campus map', 'where is block 11', 'where is block 10', 'where is block 1', 'how to reach registrar office', 'where is registrar', 'how to find a room', 'room 3201', 'campus layout', 'directions'):
     Reference and embed the official map:
     You can refer to the following map overview of SR University campus:
     ![SR University Campus Map](/map_overview.png)
@@ -231,6 +235,12 @@ Core rules:
    - Always prioritize the OFFICIAL UNIVERSITY DATABASE RECORDS.
    - If database records are limited or external web search results are provided in the context, reason logically and provide a helpful, factual answer based on the web results instead of a generic negative answer.
    - Only say "No matching university record found" if neither database records nor web search provide any relevant information.
+8. University Administration Block (1st Block / Block 1):
+   - Always mention the University Administration block as the 1st block (Block 1 / Block-I).
+   - Whenever asked about the Registrar's Office, Vice-Chancellor Office, Accounts Desk, or Administrative Directorate, state clearly that they are located in the University Administration block (1st Block / Block 1).
+   - Whenever giving directions or office locations, embed the campus map overview:
+     You can refer to the following map overview of SR University campus:
+     ![SR University Campus Map](/map_overview.png)
 """
 
 import html as html_lib
