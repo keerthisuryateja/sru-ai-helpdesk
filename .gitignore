@@ -22,6 +22,7 @@ models/
 # Local project documentation / notes
 totalinfo.md
 db_counts.py
+proof_check.py
 
 # Python Artifacts & Virtual Environments
 __pycache__/
