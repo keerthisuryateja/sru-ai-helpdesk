@@ -131,13 +131,25 @@ Leadership:
 - Vice-Chancellor: Prof. Deepak Garg
 - Pro Vice-Chancellor: Dr. V. Mahesh
 - Registrar: Prof. P. Venkata Ramana Rao
+- Dean of School of CS & AI: Prof. M. Sheshikala (Email: m.sheshikala@sru.edu.in, Cabin: Dean Office, School of Computer Science & Artificial Intelligence, Block 11)
+- Head of Department (CSE / CS & AI): Dr. Ch. Sandeep (Email: sandeep.ch@sru.edu.in, Cabin: Head of Department Office, School of Computer Science & Artificial Intelligence, Block 11)
 Never state that the Governor of Tamil Nadu or any governor is the Chancellor.
+
+Campus Facilities & Policies:
+- Central Library Working Hours (Warangal Campus):
+  * Weekdays (Monday to Friday): 8:00 a.m. to 8:00 p.m.
+  * Saturdays, Sundays, and Holidays: 10:00 a.m. to 4:00 p.m.
+  * Reading Hall: Open daily from 8:00 a.m. to 10:00 p.m.
+- Sports & Fitness Facilities: Indoor Sports Complex (Badminton, Table Tennis, Chess, Carroms), Outdoor Sports Grounds (Cricket Ground, Football Field, Basketball Courts, Volleyball Courts), Gymnasium, and Yoga & Meditation Hall.
+  * IMPORTANT: SR University does NOT have a swimming pool on campus.
+- SSM Gamification / Coin Certificate Uploads: Certificates for SSM / Gamification coins must be uploaded via the official university portal at https://www.sruniv.com (under the Student SSM / Gamification section).
+- Project Developers & Capstone Credits: This AI Helpdesk was engineered and developed by Keerthi Surya Teja, Bijjala Vrindha, Boga Siri Chandana, and Burra Praneeth as their B.Tech Capstone Project under the mentorship of Dr. Sridhar Chintala (Associate Professor, Director, AI&DL) at the School of Computer Science & Artificial Intelligence, SR University, Warangal (Academic Year 2026-2027).
 
 Core rules:
 1. Output concise, factual plain text. Use separate lines for lists. Do NOT use markdown (no asterisks, no hashes, no bold).
 2. PRIVACY: Never output personal mobile or phone numbers. Provide only official email addresses, cabin numbers, or departments.
-3. When asked about an individual faculty, staff, or officer (e.g. 'who is Dr. Sridhar Chintala', 'who is Dr. Ramesh'):
-   State their full name, their designation/role (e.g. Director, AI & DL; Associate Professor; HOD; Dean), official email, and cabin/room location directly from the records.
+3. When asked about an individual faculty, staff, or officer (e.g. 'who is Dr. Sridhar Chintala', 'who is Dean of Computer Science'):
+   State their full name, their designation/role, official email, and complete cabin/room location directly from the records without cutting off.
 4. When multiple faculty or staff match a query: list only their names (one per line). Do not dump emails/cabins unless specifically requested.
 5. Academic Calendar link: https://sraap.in/acb_uploads/2026-27_1_BTECH_20260804.pdf. Never use expired links.
 6. Dynamic Calendar & Holidays:
@@ -145,8 +157,43 @@ Core rules:
      Directly answer with the exact requested number of upcoming dates from the REAL-TIME DYNAMIC CALENDAR SCHEDULE in the context.
      Format as a clear numbered list with day, date, and reason (e.g., 1. Saturday, 21 November 2026 - Weekend (Saturday)).
      Never claim that Saturday or Sunday dates are not listed; the dynamic calendar context provides the exact dates.
-7. If no record is found: answer "No matching university record found."
+7. Information Sources & Reasoning:
+   - Always prioritize the OFFICIAL UNIVERSITY DATABASE RECORDS.
+   - If database records are limited or external web search results are provided in the context, reason logically and provide a helpful, factual answer based on the web results instead of a generic negative answer.
+   - Only say "No matching university record found" if neither database records nor web search provide any relevant information.
 """
+
+import html as html_lib
+import urllib.parse
+
+def search_web_ddg(query: str, max_results: int = 3) -> List[str]:
+    """Perform a live web search via DuckDuckGo Lite to retrieve real-time external university information."""
+    clean_q = query.strip()
+    if "sr university" not in clean_q.lower() and "sru" not in clean_q.lower() and "warangal" not in clean_q.lower():
+        search_term = f"{clean_q} SR University Warangal"
+    else:
+        search_term = clean_q
+    
+    url = "https://lite.duckduckgo.com/lite/"
+    data = urllib.parse.urlencode({"q": search_term}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=4.5) as r:
+            raw_html = r.read().decode("utf-8", errors="ignore")
+            snippets = re.findall(r'<td[^>]*class=[\'"]result-snippet[\'"][^>]*>(.*?)</td>', raw_html, re.DOTALL)
+            clean = [html_lib.unescape(re.sub(r'<[^>]+>', '', s)).strip() for s in snippets]
+            clean = [re.sub(r'\s+', ' ', s) for s in clean if len(s) > 20]
+            return clean[:max_results]
+    except Exception as e:
+        logger.warning(f"Web search warning: {e}")
+        return []
 
 GREETINGS = {"hi", "hello", "hey", "good morning", "good evening", "greetings", "howdy"}
 
@@ -528,6 +575,18 @@ def generate_rag_response(query: str, session_id: str, db) -> Tuple[str, List[Di
         timings["total_ms"] = (time.perf_counter() - t_start) * 1000
         return "Goodbye! Feel free to ask anytime.", [], timings
 
+    # Developer / Credits quick check
+    if any(p in q_lower for p in ["who developed you", "who made you", "who created you", "who built you", "who developed this", "developers", "credits", "who are the developers"]):
+        ans = ("The SR University AI Helpdesk was engineered and developed by Keerthi Surya Teja, "
+               "Bijjala Vrindha, Boga Siri Chandana, and Burra Praneeth as part of their B.Tech Capstone Project "
+               "under the guidance of Dr. Sridhar Chintala (Associate Professor, Director, AI&DL) at the "
+               "School of Computer Science & Artificial Intelligence, SR University, Warangal (Academic Year 2026-2027).")
+        t_end = time.perf_counter()
+        timings["rag_ms"] = 0.0
+        timings["llm_ms"] = 0.0
+        timings["total_ms"] = (t_end - t_start) * 1000
+        return ans, [], timings
+
     # Step 2: Try AI-first pipeline with Groq LLM
     groq_key = os.getenv("GROQ_API_KEY")
     t_llm_start = time.perf_counter()
@@ -568,6 +627,10 @@ def generate_rag_response(query: str, session_id: str, db) -> Tuple[str, List[Di
     timings["total_ms"] = (t_search_end - t_start) * 1000
 
     if not matched_records or matched_records[0]["score"] < 15:
+        web_res = search_web_ddg(q_clean, max_results=2)
+        if web_res:
+            ans = "According to SR University campus information:\n\n" + "\n\n".join(web_res)
+            return clean_plain_text(ans), [], timings
         return "No matching university record found.", [], timings
 
     # Format top result
@@ -620,11 +683,22 @@ def _ai_first_pipeline(
     has_strong_match = bool(pre_records and pre_records[0].get("score", 0) >= 12)
 
     if pre_records:
-        context_items = [f"- {r['text'][:350]}" for r in pre_records[:4]]
+        context_items = [f"- {r['text'][:650]}" for r in pre_records[:5]]
         instruction = "OFFICIAL UNIVERSITY DATABASE RECORDS (Verified facts for this query - answer directly using these records):\n" if has_strong_match else "POTENTIAL DATABASE MATCHES:\n"
         messages.append({
             "role": "system",
             "content": instruction + "\n".join(context_items)
+        })
+
+    # Web search integration: If no strong database match or for campus facilities/general topics, fetch web snippets
+    web_snippets = []
+    if not has_strong_match or any(w in query.lower() for w in ["sports", "facility", "facilities", "hostel", "mess", "placement", "bus", "transport", "canteen", "ranking", "nirf"]):
+        web_snippets = search_web_ddg(query, max_results=3)
+
+    if web_snippets:
+        messages.append({
+            "role": "system",
+            "content": "LIVE EXTERNAL WEB SEARCH RESULTS (Use to supplement answer or when database has no record):\n" + "\n".join([f"- {s}" for s in web_snippets])
         })
 
     # Add last few conversation turns for context
@@ -639,7 +713,7 @@ def _ai_first_pipeline(
             create_kwargs = {
                 "model": model_name,
                 "messages": messages,
-                "max_tokens": 300,
+                "max_tokens": 800,
                 "temperature": 0.0
             }
             if not has_strong_match:
@@ -676,9 +750,13 @@ def _ai_first_pipeline(
             logger.info(f"[AI-TOOL-CALL] DB search requested: query='{search_query}', category='{category}'")
             matched_records = search_database(search_query, db, category=category)
             if matched_records:
-                results_text = "\n".join([f"- {r['text'][:350]}" for r in matched_records[:6]])
+                results_text = "\n".join([f"- {r['text'][:650]}" for r in matched_records[:6]])
             else:
-                results_text = "No matching records found in the university database."
+                web_snippets = search_web_ddg(search_query, max_results=3)
+                if web_snippets:
+                    results_text = "No direct database match. Web search results:\n" + "\n".join([f"- {s}" for s in web_snippets])
+                else:
+                    results_text = "No matching records found in the university database."
 
             t_search_end = time.perf_counter()
             timings["rag_ms"] = (t_search_end - t_search_start) * 1000
@@ -694,7 +772,7 @@ def _ai_first_pipeline(
             final_completion = client.chat.completions.create(
                 model=model_name,
                 messages=messages,
-                max_tokens=450,
+                max_tokens=800,
                 temperature=0.0
             )
 
