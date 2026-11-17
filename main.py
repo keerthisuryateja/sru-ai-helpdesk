@@ -47,6 +47,11 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # Never cache API calls or main application entrypoints
+    if request.url.path.startswith("/api/") or request.url.path in ["/", "/admin"]:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     return response
 
 app.add_middleware(
@@ -406,12 +411,18 @@ if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, 
 # Frontend Web Routes
 # ============================================================================
 
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0"
+}
+
 @app.get("/", response_class=FileResponse)
 def serve_home():
     react_index = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
     if os.path.exists(react_index):
-        return FileResponse(react_index)
-    return FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"))
+        return FileResponse(react_index, headers=NO_CACHE_HEADERS)
+    return FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"), headers=NO_CACHE_HEADERS)
 
 
 @app.get("/sru_logo.png")
@@ -442,8 +453,8 @@ def serve_map_overview():
 def serve_admin():
     react_index = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
     if os.path.exists(react_index):
-        return FileResponse(react_index)
-    return FileResponse(os.path.join(os.path.dirname(__file__), "static", "admin.html"))
+        return FileResponse(react_index, headers=NO_CACHE_HEADERS)
+    return FileResponse(os.path.join(os.path.dirname(__file__), "static", "admin.html"), headers=NO_CACHE_HEADERS)
 
 
 @app.get("/api/health")
